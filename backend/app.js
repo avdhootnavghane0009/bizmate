@@ -17,12 +17,23 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'https://bizmate.vercel.app',
-  ],
+  origin: (origin, callback) => {
+    // Allow server-to-server, curl, mobile, or webhook requests with no origin
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost, any Netlify preview/production, Vercel, and Render origins
+    if (
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.endsWith('.netlify.app') ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com') ||
+      origin.includes('bizmate')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true,
 }));
 
