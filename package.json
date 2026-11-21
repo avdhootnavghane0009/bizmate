@@ -1,0 +1,18 @@
+{
+  "name": "bizmate-monorepo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "BizMate Full-Stack Operating System (Express.js Backend + React Vite Frontend)",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && node --watch server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "cd backend && npm test",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
