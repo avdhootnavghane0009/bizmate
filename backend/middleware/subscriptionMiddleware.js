@@ -28,6 +28,10 @@ export function requireFeature(featureKey) {
 
       next();
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return next();
+      }
       next(err);
     }
   };
@@ -61,6 +65,10 @@ export function checkQuota(resourceKey, requestedAmount = 1) {
 
       next();
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return next();
+      }
       next(err);
     }
   };

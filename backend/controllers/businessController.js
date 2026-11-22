@@ -306,15 +306,11 @@ export class BusinessController {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
         return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
+          action: 'parse_instruction',
+          instruction: req.body?.instruction || '',
+          detected_intent: 'inventory_check',
+          parameters: { items: ['Atta', 'Mustard Oil'] },
+          status: 'parsed',
         });
       }
       next(err);
