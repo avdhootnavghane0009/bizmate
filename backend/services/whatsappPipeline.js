@@ -6,6 +6,7 @@ import { query } from '../config/database.js';
 import { config } from '../config/environment.js';
 import { WhatsAppService } from './whatsappService.js';
 import { GeminiService } from './geminiService.js';
+import { SarvamService } from './sarvamService.js';
 import { BusinessValidator } from './businessValidator.js';
 import { EntitlementService } from './entitlementService.js';
 import { UsageService } from './usageService.js';
@@ -212,7 +213,7 @@ export class WhatsAppPipeline {
             // Check if tenant's subscription plan allows voice processing
             const voiceCheck = await EntitlementService.checkQuota(businessId, 'voice_processing');
             if (voiceCheck.allowed) {
-              const audioRes = await GeminiService.transcribeVoiceNote(audioBytes, 'audio/ogg', 'general', businessId);
+              const audioRes = await SarvamService.transcribeVoiceNote(audioBytes, 'audio/ogg', businessId);
               transcription = audioRes.transcription;
               originalContent = `🎙️ [Voice Note]: ${transcription}`;
             } else {

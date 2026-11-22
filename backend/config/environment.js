@@ -43,4 +43,7 @@ export const config = {
   RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || null,
   RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET || null,
   RAZORPAY_CURRENCY: process.env.RAZORPAY_CURRENCY || 'INR',
+
+  // Sarvam AI Indian Language Engine
+  SARVAM_API_KEY: process.env.SARVAM_API_KEY || null,
 };
