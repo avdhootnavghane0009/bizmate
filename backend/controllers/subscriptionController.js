@@ -86,7 +86,7 @@ export class SubscriptionController {
     } catch (err) {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
-        return res.status(200).json([]);
+        return res.status(200).json({ invoices: [], payments: [] });
       }
       next(err);
     }

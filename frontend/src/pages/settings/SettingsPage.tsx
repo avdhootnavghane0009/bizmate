@@ -61,9 +61,19 @@ export const SettingsPage: React.FC = () => {
   const [testModalOrder, setTestModalOrder] = useState<any | null>(null);
 
   const fetchBillingHistory = () => {
-    api.get<{ invoices: BillingInvoice[]; payments: BillingPayment[] }>('/subscriptions/billing-history')
-      .then((data) => setBillingHistory(data))
-      .catch(() => {});
+    api.get<any>('/subscriptions/billing-history')
+      .then((data) => {
+        if (data && Array.isArray(data.invoices)) {
+          setBillingHistory({ invoices: data.invoices, payments: data.payments || [] });
+        } else if (Array.isArray(data)) {
+          setBillingHistory({ invoices: data, payments: [] });
+        } else {
+          setBillingHistory({ invoices: [], payments: [] });
+        }
+      })
+      .catch(() => {
+        setBillingHistory({ invoices: [], payments: [] });
+      });
   };
 
   useEffect(() => {
@@ -560,7 +570,7 @@ export const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {billingHistory.invoices.length === 0 ? (
+        {(!billingHistory?.invoices || billingHistory.invoices.length === 0) ? (
           <div className="text-center py-6 text-xs text-[#57554F] dark:text-[#9E998E]">
             No paid invoices on record yet. Upgrade to Starter, Growth, or Pro to generate official tax receipts.
           </div>
@@ -578,7 +588,7 @@ export const SettingsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#D8CDBC]/40 dark:divide-[#2C2C26]">
-                {billingHistory.invoices.map((inv) => (
+                {(billingHistory?.invoices || []).map((inv) => (
                   <tr key={inv.id} className="hover:bg-[#EDE8DE]/30 dark:hover:bg-[#181915]/50 transition">
                     <td className="py-2.5 px-3 font-mono font-bold text-[#A0815A]">{inv.invoice_number}</td>
                     <td className="py-2.5 px-3 capitalize font-medium">{inv.plan_id}</td>
