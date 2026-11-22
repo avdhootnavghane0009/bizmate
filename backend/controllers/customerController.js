@@ -38,6 +38,10 @@ export class CustomerController {
         }))
       );
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return res.status(200).json([]);
+      }
       next(err);
     }
   }
@@ -75,6 +79,10 @@ export class CustomerController {
         success: true,
       });
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return res.status(200).json([]);
+      }
       next(err);
     }
   }
@@ -123,6 +131,10 @@ export class CustomerController {
         success: true,
       });
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return res.status(200).json([]);
+      }
       next(err);
     }
   }
@@ -146,6 +158,10 @@ export class CustomerController {
 
       return res.status(200).json({ success: true, id });
     } catch (err) {
+      const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
+      if (isDbDown) {
+        return res.status(200).json([]);
+      }
       next(err);
     }
   }

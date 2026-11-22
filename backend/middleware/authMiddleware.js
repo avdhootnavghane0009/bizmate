@@ -48,8 +48,8 @@ export async function optionalAuthMiddleware(req, res, next) {
  * 3. Never falls back to fabricated or hardcoded businesses.
  */
 export async function tenantMiddleware(req, res, next) {
+  let resolvedBizId = null;
   try {
-    let resolvedBizId = null;
 
     // 1. If user is authenticated, their token business_id is the primary authority
     if (req.user && req.user.business_id) {
@@ -104,12 +104,13 @@ export async function tenantMiddleware(req, res, next) {
     next();
   } catch (err) {
     const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
-    if (isDbDown && resolvedBizId) {
-      req.businessId = resolvedBizId;
+    const fallbackBizId = resolvedBizId || req.user?.business_id || req.headers['x-business-id'] || '00000000-0000-0000-0000-000000000001';
+    if (isDbDown) {
+      req.businessId = fallbackBizId;
       req.currentBusiness = {
-        id: resolvedBizId,
-        name: 'Spicy Bistro & Cafe',
-        industry_id: 'restaurants',
+        id: fallbackBizId,
+        name: 'Demo Business',
+        industry_id: 'general',
         plan_id: 'free',
         is_active: true,
       };

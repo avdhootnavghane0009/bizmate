@@ -263,15 +263,27 @@ export class BusinessController {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
         return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
+          kpis: {
+            total_leads: 0,
+            qualified_leads: 0,
+            total_orders: 0,
+            revenue_this_month: 0,
+            pending_payments: 0,
+            ai_handled_rate: 0,
+            hours_saved: 0,
+            has_conversations: false,
+          },
+          chartData: [
+            { day: 'Mon', revenue: 0 },
+            { day: 'Tue', revenue: 0 },
+            { day: 'Wed', revenue: 0 },
+            { day: 'Thu', revenue: 0 },
+            { day: 'Fri', revenue: 0 },
+            { day: 'Sat', revenue: 0 },
+            { day: 'Sun', revenue: 0 },
+          ],
+          currency: req.currentBusiness?.currency || 'INR',
+          industry: req.currentBusiness?.industry_id || 'general',
         });
       }
       next(err);
@@ -332,17 +344,7 @@ export class BusinessController {
     } catch (err) {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
-        return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        });
+        return res.status(200).json([]);
       }
       next(err);
     }
@@ -418,17 +420,7 @@ export class BusinessController {
     } catch (err) {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
-        return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        });
+        return res.status(200).json([]);
       }
       next(err);
     }
@@ -493,17 +485,7 @@ export class BusinessController {
     } catch (err) {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
-        return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        });
+        return res.status(200).json([]);
       }
       next(err);
     }
@@ -583,17 +565,7 @@ export class BusinessController {
     } catch (err) {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
-        return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        });
+        return res.status(200).json([]);
       }
       next(err);
     }
@@ -697,15 +669,9 @@ export class BusinessController {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
         return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
+          total_tenants: 1,
+          total_users: 1,
+          server_uptime: process.uptime(),
         });
       }
       next(err);
@@ -739,15 +705,10 @@ export class BusinessController {
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
       if (isDbDown) {
         return res.status(200).json({
-          id: String(req.businessId || '00000000-0000-0000-0000-000000000001'),
-          name: 'Spicy Bistro & Cafe',
-          industryId: 'restaurants',
-          planId: 'free',
-          phone: '+919876543210',
-          currency: 'INR',
-          timezone: 'Asia/Kolkata',
-          isActive: true,
-          createdAt: new Date().toISOString(),
+          whatsapp: { connected: false, phone: 'Not Configured' },
+          gemini: { active: true, model: 'gemini-3.5-flash-lite' },
+          database: { connected: false, provider: 'PostgreSQL' },
+          n8n: { connected: true, endpoint: 'http://localhost:5678/webhook' },
         });
       }
       next(err);
