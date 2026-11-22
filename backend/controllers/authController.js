@@ -73,19 +73,28 @@ export class AuthController {
     } catch (err) {
       // Graceful fallback for cloud demo deployment if external DB is temporarily unreachable
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
-      if (isDbDown && req.body?.email?.toLowerCase() === 'owner@spicybistro.com') {
-        const demoBizId = '00000000-0000-0000-0000-000000000001';
-        const demoUserId = '00000000-0000-0000-0000-000000000002';
+      if (isDbDown) {
+        const demoEmail = req.body?.email?.trim() || 'owner@spicybistro.com';
+        const isSpicy = demoEmail.toLowerCase() === 'owner@spicybistro.com';
+        const demoBizId = isSpicy ? '00000000-0000-0000-0000-000000000001' : uuidv4();
+        const demoUserId = isSpicy ? '00000000-0000-0000-0000-000000000002' : uuidv4();
         const token = jwt.sign(
-          { sub: demoUserId, business_id: demoBizId, email: 'owner@spicybistro.com', role: 'owner' },
+          { sub: demoUserId, business_id: demoBizId, email: demoEmail, role: 'owner' },
           config.SECRET_KEY,
           { expiresIn: `${config.ACCESS_TOKEN_EXPIRE_MINUTES}m` }
         );
         return res.status(200).json({
           access_token: token,
           token_type: 'bearer',
-          user: { id: demoUserId, email: 'owner@spicybistro.com', name: 'Demo Owner', role: 'owner' },
-          business: { id: demoBizId, name: 'Spicy Bistro & Cafe', industryId: 'restaurants', planId: 'free', currency: 'INR', phone: '+919876543210' },
+          user: { id: demoUserId, email: demoEmail, name: demoEmail.split('@')[0] || 'Store Owner', role: 'owner' },
+          business: {
+            id: demoBizId,
+            name: isSpicy ? 'Spicy Bistro & Cafe' : 'Demo Business',
+            industryId: isSpicy ? 'restaurants' : 'general',
+            planId: 'free',
+            currency: 'INR',
+            phone: '+919876543210'
+          },
         });
       }
       next(err);
@@ -177,19 +186,36 @@ export class AuthController {
     } catch (err) {
       // Graceful fallback for cloud demo deployment if external DB is temporarily unreachable
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
-      if (isDbDown && req.body?.email?.toLowerCase() === 'owner@spicybistro.com') {
-        const demoBizId = '00000000-0000-0000-0000-000000000001';
-        const demoUserId = '00000000-0000-0000-0000-000000000002';
+      if (isDbDown) {
+        const demoEmail = (req.body?.email || '').trim() || 'owner@example.com';
+        const demoBizId = uuidv4();
+        const demoUserId = uuidv4();
+        const bizName = (req.body?.business_name || '').trim() || 'My Business';
+        const indId = (req.body?.industry_id || '').trim() || 'general';
+        const phone = (req.body?.phone_number || '').trim();
         const token = jwt.sign(
-          { sub: demoUserId, business_id: demoBizId, email: 'owner@spicybistro.com', role: 'owner' },
+          { sub: demoUserId, business_id: demoBizId, email: demoEmail, role: 'owner' },
           config.SECRET_KEY,
           { expiresIn: `${config.ACCESS_TOKEN_EXPIRE_MINUTES}m` }
         );
-        return res.status(200).json({
+        return res.status(201).json({
           access_token: token,
           token_type: 'bearer',
-          user: { id: demoUserId, email: 'owner@spicybistro.com', name: 'Demo Owner', role: 'owner' },
-          business: { id: demoBizId, name: 'Spicy Bistro & Cafe', industryId: 'restaurants', planId: 'free', currency: 'INR', phone: '+919876543210' },
+          business_id: demoBizId,
+          user: {
+            id: demoUserId,
+            email: demoEmail,
+            name: (req.body?.owner_name || '').trim() || demoEmail.split('@')[0] || 'Store Owner',
+            role: 'owner',
+          },
+          business: {
+            id: demoBizId,
+            name: bizName,
+            industryId: indId,
+            planId: 'free',
+            currency: req.body?.currency || 'INR',
+            phone: phone,
+          },
         });
       }
       next(err);
@@ -239,19 +265,24 @@ export class AuthController {
     } catch (err) {
       // Graceful fallback for cloud demo deployment if external DB is temporarily unreachable
       const isDbDown = err?.code === 'ECONNREFUSED' || err?.message?.includes('connect') || err?.name === 'AggregateError';
-      if (isDbDown && req.body?.email?.toLowerCase() === 'owner@spicybistro.com') {
-        const demoBizId = '00000000-0000-0000-0000-000000000001';
-        const demoUserId = '00000000-0000-0000-0000-000000000002';
-        const token = jwt.sign(
-          { sub: demoUserId, business_id: demoBizId, email: 'owner@spicybistro.com', role: 'owner' },
-          config.SECRET_KEY,
-          { expiresIn: `${config.ACCESS_TOKEN_EXPIRE_MINUTES}m` }
-        );
+      if (isDbDown) {
+        const userId = req.user?.sub || '00000000-0000-0000-0000-000000000002';
+        const bizId = req.user?.business_id || '00000000-0000-0000-0000-000000000001';
         return res.status(200).json({
-          access_token: token,
-          token_type: 'bearer',
-          user: { id: demoUserId, email: 'owner@spicybistro.com', name: 'Demo Owner', role: 'owner' },
-          business: { id: demoBizId, name: 'Spicy Bistro & Cafe', industryId: 'restaurants', planId: 'free', currency: 'INR', phone: '+919876543210' },
+          user: {
+            id: String(userId),
+            email: req.user?.email || 'owner@spicybistro.com',
+            name: (req.user?.email || 'Store Owner').split('@')[0],
+            role: req.user?.role || 'owner',
+          },
+          business: {
+            id: String(bizId),
+            name: 'Spicy Bistro & Cafe',
+            industryId: 'restaurants',
+            planId: 'free',
+            currency: 'INR',
+            phone: '+919876543210',
+          },
         });
       }
       next(err);
