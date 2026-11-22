@@ -34,3 +34,6 @@ Thumbs.db
 # Uploaded Media & Temporary Files
 backend/media/*
 !backend/media/.gitkeep
+
+# Local Netlify folder
+.netlify
