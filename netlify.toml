@@ -4,6 +4,12 @@
   command = "npm run build"
 
 [[redirects]]
+  from = "/api/v1/*"
+  to = "https://bizmate-56sa.onrender.com/api/v1/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
