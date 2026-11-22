@@ -1,4 +1,13 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const FALLBACK_BACKEND_URL = 'https://bizmate-id73.onrender.com/api/v1';
+
+const getBaseUrl = (): string => {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  // If the env var still references the old deleted service 'bizmate-56sa', ignore it
+  if (envUrl && !envUrl.includes('bizmate-56sa')) {
+    return envUrl;
+  }
+  return '/api/v1';
+};
 
 export interface APIErrorResponse {
   detail?: string;
@@ -29,8 +38,9 @@ export class APIClient {
     return headers;
   }
 
-  private buildUrl(endpoint: string, params?: Record<string, any>): string {
-    let url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  private buildUrl(endpoint: string, params?: Record<string, any>, customBase?: string): string {
+    const base = customBase || getBaseUrl();
+    let url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     if (params) {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([k, v]) => {
@@ -61,7 +71,6 @@ export class APIClient {
 
     if (!res.ok) {
       if (res.status === 401) {
-        // Token expired or invalid
         console.warn('Session expired or unauthorized request. Redirecting to login.');
       }
       const message =
@@ -76,52 +85,57 @@ export class APIClient {
     return data as T;
   }
 
+  private async execute<T>(
+    method: string,
+    endpoint: string,
+    body?: any,
+    params?: Record<string, any>
+  ): Promise<T> {
+    const primaryUrl = this.buildUrl(endpoint, params);
+    try {
+      const res = await fetch(primaryUrl, {
+        method,
+        headers: this.getHeaders(),
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+      });
+      return await this.handleResponse<T>(res);
+    } catch (err: any) {
+      // If primary request failed and wasn't already calling the direct Render fallback, retry directly
+      if (!primaryUrl.startsWith(FALLBACK_BACKEND_URL)) {
+        try {
+          const fallbackUrl = this.buildUrl(endpoint, params, FALLBACK_BACKEND_URL);
+          const fallbackRes = await fetch(fallbackUrl, {
+            method,
+            headers: this.getHeaders(),
+            body: body !== undefined ? JSON.stringify(body) : undefined,
+          });
+          return await this.handleResponse<T>(fallbackRes);
+        } catch (_fallbackErr) {
+          throw err;
+        }
+      }
+      throw err;
+    }
+  }
+
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = this.buildUrl(endpoint, params);
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
-    return this.handleResponse<T>(res);
+    return this.execute<T>('GET', endpoint, undefined, params);
   }
 
   async post<T>(endpoint: string, body?: any, params?: Record<string, any>): Promise<T> {
-    const url = this.buildUrl(endpoint, params);
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-    return this.handleResponse<T>(res);
+    return this.execute<T>('POST', endpoint, body, params);
   }
 
   async put<T>(endpoint: string, body?: any, params?: Record<string, any>): Promise<T> {
-    const url = this.buildUrl(endpoint, params);
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: this.getHeaders(),
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-    return this.handleResponse<T>(res);
+    return this.execute<T>('PUT', endpoint, body, params);
   }
 
   async patch<T>(endpoint: string, body?: any, params?: Record<string, any>): Promise<T> {
-    const url = this.buildUrl(endpoint, params);
-    const res = await fetch(url, {
-      method: 'PATCH',
-      headers: this.getHeaders(),
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    });
-    return this.handleResponse<T>(res);
+    return this.execute<T>('PATCH', endpoint, body, params);
   }
 
   async delete<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = this.buildUrl(endpoint, params);
-    const res = await fetch(url, {
-      method: 'DELETE',
-      headers: this.getHeaders(),
-    });
-    return this.handleResponse<T>(res);
+    return this.execute<T>('DELETE', endpoint, undefined, params);
   }
 }
 
